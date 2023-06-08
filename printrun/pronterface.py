@@ -456,46 +456,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         feed = self.settings.e_feedrate
         self.do_extrude_final(- self.edist.GetValue(), feed)
 
-    def do_settemp(self, l = ""):
-        try:
-            if not isinstance(l, str) or not len(l):
-                l = str(self.htemp.GetValue().split()[0])
-            l = l.lower().replace(", ", ".")
-            for i in self.temps.keys():
-                l = l.replace(i, self.temps[i])
-            f = float(l)
-            if f >= 0:
-                if self.p.online:
-                    self.p.send_now("M104 S" + l)
-                    self.log(_("Setting hotend temperature to %g degrees Celsius.") % f)
-                    self.sethotendgui(f)
-                else:
-                    self.logError(_("Printer is not online."))
-            else:
-                self.logError(_("You cannot set negative temperatures. To turn the hotend off entirely, set its temperature to 0."))
-        except Exception as x:
-            self.logError(_("You must enter a temperature. (%s)") % (repr(x),))
-
-    def do_bedtemp(self, l = ""):
-        try:
-            if not isinstance(l, str) or not len(l):
-                l = str(self.btemp.GetValue().split()[0])
-            l = l.lower().replace(", ", ".")
-            for i in self.bedtemps.keys():
-                l = l.replace(i, self.bedtemps[i])
-            f = float(l)
-            if f >= 0:
-                if self.p.online:
-                    self.p.send_now("M140 S" + l)
-                    self.log(_("Setting bed temperature to %g degrees Celsius.") % f)
-                    self.setbedgui(f)
-                else:
-                    self.logError(_("Printer is not online."))
-            else:
-                self.logError(_("You cannot set negative temperatures. To turn the bed off entirely, set its temperature to 0."))
-        except Exception as x:
-            self.logError(_("You must enter a temperature. (%s)") % (repr(x),))
-
     def do_setspeed(self, l = ""):
         try:
             if not isinstance(l, str) or not len(l):
@@ -525,46 +485,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
                 self.logError(_("Printer is not online."))
         except Exception as x:
             self.logError(_("You must enter a flow. (%s)") % (repr(x),))
-
-    def setbedgui(self, f):
-        self.bsetpoint = f
-        if self.display_gauges: self.bedtgauge.SetTarget(int(f))
-        if self.display_graph: wx.CallAfter(self.graph.SetBedTargetTemperature, int(f))
-        if f > 0:
-            wx.CallAfter(self.btemp.SetValue, str(f))
-            self.set("last_bed_temperature", str(f))
-            wx.CallAfter(self.setboff.SetBackgroundColour, None)
-            wx.CallAfter(self.setboff.SetForegroundColour, None)
-            wx.CallAfter(self.setbbtn.SetBackgroundColour, "#FFAA66")
-            wx.CallAfter(self.setbbtn.SetForegroundColour, "#660000")
-            wx.CallAfter(self.btemp.SetBackgroundColour, "#FFDABB")
-        else:
-            wx.CallAfter(self.setboff.SetBackgroundColour, "#0044CC")
-            wx.CallAfter(self.setboff.SetForegroundColour, "white")
-            wx.CallAfter(self.setbbtn.SetBackgroundColour, None)
-            wx.CallAfter(self.setbbtn.SetForegroundColour, None)
-            wx.CallAfter(self.btemp.SetBackgroundColour, "white")
-            wx.CallAfter(self.btemp.Refresh)
-
-    def sethotendgui(self, f):
-        self.hsetpoint = f
-        if self.display_gauges: self.hottgauge.SetTarget(int(f))
-        if self.display_graph: wx.CallAfter(self.graph.SetExtruder0TargetTemperature, int(f))
-        if f > 0:
-            wx.CallAfter(self.htemp.SetValue, str(f))
-            self.set("last_temperature", str(f))
-            wx.CallAfter(self.settoff.SetBackgroundColour, None)
-            wx.CallAfter(self.settoff.SetForegroundColour, None)
-            wx.CallAfter(self.settbtn.SetBackgroundColour, "#FFAA66")
-            wx.CallAfter(self.settbtn.SetForegroundColour, "#660000")
-            wx.CallAfter(self.htemp.SetBackgroundColour, "#FFDABB")
-        else:
-            wx.CallAfter(self.settoff.SetBackgroundColour, "#0044CC")
-            wx.CallAfter(self.settoff.SetForegroundColour, "white")
-            wx.CallAfter(self.settbtn.SetBackgroundColour, None)
-            wx.CallAfter(self.settbtn.SetForegroundColour, None)
-            wx.CallAfter(self.htemp.SetBackgroundColour, "white")
-            wx.CallAfter(self.htemp.Refresh)
 
     def rescanports(self, event = None):
         scanned = self.scanserial()
@@ -647,16 +567,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         item = popupmenu.Append(-1, _("SD Print"))
         self.Bind(wx.EVT_MENU, self.sdprintfile, id = item.GetId())
         self.panel.PopupMenu(popupmenu, obj.GetPosition())
-
-    def htemp_change(self, event):
-        if self.hsetpoint > 0:
-            self.do_settemp("")
-        wx.CallAfter(self.htemp.SetInsertionPoint, 0)
-
-    def btemp_change(self, event):
-        if self.bsetpoint > 0:
-            self.do_bedtemp("")
-        wx.CallAfter(self.btemp.SetInsertionPoint, 0)
 
     def tool_change(self, event):
         self.do_tool(self.extrudersel.GetValue())
