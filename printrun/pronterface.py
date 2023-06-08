@@ -20,6 +20,7 @@ import sys
 import time
 import threading
 import traceback
+import socket
 import io as StringIO
 import subprocess
 import glob
@@ -1406,6 +1407,14 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
     #  --------------------------------------------------------------
 
     def on_startprint(self):
+        # try to start pumps
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as pumps_client:
+            try:
+                pumps_client.connect('/tmp/pumps.sock')
+                pumps_client.send(b'\x31')  # 'b\x32' to stop all
+            except FileNotFoundError as ex:
+                pass
+
         wx.CallAfter(self.pausebtn.SetLabel, _("&Pause"))
         wx.CallAfter(self.pausebtn.Enable)
         wx.CallAfter(self.printbtn.SetLabel, _("Restart"))
