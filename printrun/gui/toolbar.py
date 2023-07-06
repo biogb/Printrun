@@ -35,6 +35,7 @@ def MainToolbar(root, parentpanel = None, use_wrapsizer = False):
     root.serialport = wx.ComboBox(parentpanel, -1, choices = root.scanserial(),
                                   style = wx.CB_DROPDOWN)
     root.serialport.SetToolTip(wx.ToolTip(_("Select Port Printer is connected to")))
+    root.serialport.Disable()
     root.rescanports()
     self.Add(root.serialport)
 
