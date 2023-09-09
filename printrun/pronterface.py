@@ -159,8 +159,6 @@ class PronterWindow(MainWindow, pronsole.pronsole):
         self.sentglines = queue.Queue(0)
         self.cpbuttons = {
             "motorsoff": SpecialButton(_("Motors off"), ("M84"), (250, 250, 250), _("Switch all motors off")),
-            "extrude": SpecialButton(_("Extrude"), ("pront_extrude"), (225, 200, 200), _("Advance extruder by set length")),
-            "reverse": SpecialButton(_("Reverse"), ("pront_reverse"), (225, 200, 200), _("Reverse extruder by set length")),
         }
         self.custombuttons = []
         self.btndict = {}
